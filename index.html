@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>sipgate API Playground</title>
+		<style>
+			#webphone {
+				height: 600px;
+				width: 400px;
+				margin: 1em 0;
+				border: 4px dashed peachpuff;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- RTCM -->
+		<button type="button" onclick="call()">Call</button>
+		<button type="button" onclick="mute()">Mute/Unmute</button>
+		<button type="button" onclick="hangup()">Hang up</button>
+		<script>
+			function _fetch(url, method, data) {
+				return fetch(url, {
+						headers: {
+							"Accept": "application/json",
+							"Content-Type": "application/json",
+							"Authorization": "Bearer " + JSON.parse(localStorage.getItem("app-auth")).token.value
+						},
+						method: method,
+						body: JSON.stringify(data)
+					}).then(function (res) {
+						return res[res.status == 200 ? "json" : "text"]();
+					}).catch(function (err) {
+						console.warn(err);
+					})
+			}
+			function call() {
+				_fetch("https://api.sipgate.com/v1/sessions/calls", "POST", {
+						deviceId: "p0",
+						caller: "e0",
+						callee: "+4915799912345"
+					}).then(function (json) {
+						window.callid = json.sessionId;
+					})
+			}
+			function mute() {
+				_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/muted", "PUT", {
+						value: !window.muted
+					}).then(function (res) {
+						window.muted = !window.muted;
+					})
+			}
+			function hangup() {
+				_fetch("https://api.sipgate.com/v2/calls/" + window.callid, "DELETE")
+			}
+		</script>
+
+		<!-- Webphone -->
+		<div id="webphone"></div>
+		<script src="https://static.sipgate.com/js/webphone/v1/webphone.js"></script>
+		<script>
+			var container = document.getElementById("webphone");
+			var webphone = new SipgateWebphone();
+			webphone.init({
+				container: container,
+				clientId: "sipgate-webphone-example"
+			});
+		</script>
+	</body>
+</html>
