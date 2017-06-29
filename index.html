@@ -17,6 +17,7 @@
 		<!-- RTCM -->
 		<button type="button" onclick="call()">Call</button>
 		<button type="button" onclick="mute()">Mute/Unmute</button>
+		<button type="button" onclick="hold()">Hold/Unhold</button>
 		<button type="button" onclick="hangup()">Hang up</button>
 		<script>
 			function _fetch(url, method, data) {
@@ -48,6 +49,13 @@
 						value: !window.muted
 					}).then(function (res) {
 						window.muted = !window.muted;
+					})
+			}
+			function hold() {
+				_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/hold", "PUT", {
+						value: !window.hold
+					}).then(function (res) {
+						window.hold = !window.hold;
 					})
 			}
 			function hangup() {
