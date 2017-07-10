@@ -26,6 +26,7 @@
 					<h2>Controls</h2>
 					<button type="button" onclick="muteCall()">Mute/Unmute</button>
 					<button type="button" onclick="holdCall()">Hold/Unhold</button>
+					<button type="button" onclick="recordCall()">Record On/Off</button>
 					<button type="button" onclick="hangupCall()">Hang up</button>
 				</div>
 				<div>
@@ -83,6 +84,13 @@
 							value: !window.hold
 						}).then(function (res) {
 							window.hold = !window.hold;
+						})
+				}
+				function recordCall() {
+					_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/recording", "PUT", {
+							value: !window.recording
+						}).then(function (res) {
+							window.recording = !window.recording;
 						})
 				}
 				function attendedTransfer() {
