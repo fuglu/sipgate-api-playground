@@ -15,94 +15,111 @@
 	</head>
 	<body>
 		<!-- RTCM -->
-		<div>
-			<h2>Call someone</h2>
-			<input id="phoneNumber" placeholder="Phone number"/>
-			<button type="button" onclick="call()">Call</button>
-		</div>
-		<div>
-			<h2>Controls</h2>
-			<button type="button" onclick="muteCall()">Mute/Unmute</button>
-			<button type="button" onclick="holdCall()">Hold/Unhold</button>
-			<button type="button" onclick="hangupCall()">Hang up</button>
-		</div>
-		<div>
-			<h2>Transfer</h2>
-			<input id="transferPhoneNumber" placeholder="Transfer phone number"/>
-			<button type="button" onclick="attendedTransfer()">Attended Transfer</button>
-			<button type="button" onclick="unattendedTransfer()">Unattended Transfer</button>
-		</div>
-		<script>
-			function _fetch(url, method, data) {
-				return fetch(url, {
-						headers: {
-							"Accept": "application/json",
-							"Content-Type": "application/json",
-							"Authorization": "Bearer " + JSON.parse(localStorage.getItem("app-auth")).token.value
-						},
-						method: method,
-						body: JSON.stringify(data)
-					}).then(function (res) {
-						return res[res.status == 200 ? "json" : "text"]();
-					}).catch(function (err) {
-						console.warn(err);
-					})
-			}
-			function call() {
-				_fetch("https://api.sipgate.com/v1/sessions/calls", "POST", {
-						deviceId: "p0",
-						caller: "e0",
-						callee: document.getElementById("phoneNumber").value,
-					}).then(function (json) {
-						window.callid = json.sessionId;
-					})
-			}
-			function muteCall() {
-				_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/muted", "PUT", {
-						value: !window.muted
-					}).then(function (res) {
-						window.muted = !window.muted;
-					})
-			}
-			function holdCall() {
-				_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/hold", "PUT", {
-						value: !window.hold
-					}).then(function (res) {
-						window.hold = !window.hold;
-					})
-			}
-			function attendedTransfer() {
-				_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/transfer", "POST", {
-						attended: true,
-						phoneNumber: document.getElementById("transferPhoneNumber").value,
-					}).then(function (res) {
-						window.hold = !window.hold;
-					})
-			}
-			function unattendedTransfer() {
-				_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/transfer", "POST", {
-						attended: false,
-						phoneNumber: document.getElementById("transferPhoneNumber").value,
-					}).then(function (res) {
-						window.hold = !window.hold;
-					})
-			}
-			function hangupCall() {
-				_fetch("https://api.sipgate.com/v2/calls/" + window.callid, "DELETE")
-			}
-		</script>
+		<div style="display: flex; justify-content: space-around">
+			<div>
+				<div>
+					<h2>Call someone</h2>
+					<input id="phoneNumber" name="phoneNumber" placeholder="Phone number"/>
+					<button type="button" onclick="initCall()">Call</button>
+				</div>
+				<div>
+					<h2>Controls</h2>
+					<button type="button" onclick="muteCall()">Mute/Unmute</button>
+					<button type="button" onclick="holdCall()">Hold/Unhold</button>
+					<button type="button" onclick="hangupCall()">Hang up</button>
+				</div>
+				<div>
+					<h2>Transfer</h2>
+					<input id="transferPhoneNumber" name="transferPhoneNumber" placeholder="Transfer phone number"/>
+					<button type="button" onclick="attendedTransfer()">Attended Transfer</button>
+					<button type="button" onclick="unattendedTransfer()">Unattended Transfer</button>
+				</div>
+				<div>
+					<h2>Log</h2>
+					<textarea id="log" name="log" rows="30" cols="100"></textarea>
+				</div>
+			</div>
+			<script>
+				setInterval(getCalls, 2000);
 
-		<!-- Webphone -->
-		<h2>Webphone</h2>
-		<div id="webphone"></div>
-		<script src="https://static.sipgate.com/js/webphone/v1/webphone.js"></script>
-		<script>
-			var container = document.getElementById("webphone");
-			var webphone = new SipgateWebphone();
-			webphone.init({
-				container: container,
-				clientId: "sipgate-webphone-example"
-			});
-		</script>
+				function _fetch(url, method, data) {
+					return fetch(url, {
+							headers: {
+								"Accept": "application/json",
+								"Content-Type": "application/json",
+								"Authorization": "Bearer " + JSON.parse(localStorage.getItem("app-auth")).token.value
+							},
+							method: method,
+							body: JSON.stringify(data)
+						}).then(function (res) {
+							return res[res.status == 200 ? "json" : "text"]();
+						}).catch(function (err) {
+							console.warn(err);
+						})
+				}
+				function getCalls() {
+					_fetch("https://api.sipgate.com/v2/calls", "GET").then(function (json) {
+						document.getElementById('log').value = JSON.stringify(json, null, ' ');
+					})
+				}
+				function initCall() {
+					_fetch("https://api.sipgate.com/v1/sessions/calls", "POST", {
+							deviceId: "p0",
+							caller: "e0",
+							callee: document.getElementById("phoneNumber").value,
+						}).then(function (json) {
+							window.callid = json.sessionId;
+						})
+				}
+				function muteCall() {
+					_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/muted", "PUT", {
+							value: !window.muted
+						}).then(function (res) {
+							window.muted = !window.muted;
+						})
+				}
+				function holdCall() {
+					_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/hold", "PUT", {
+							value: !window.hold
+						}).then(function (res) {
+							window.hold = !window.hold;
+						})
+				}
+				function attendedTransfer() {
+					_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/transfer", "POST", {
+							attended: true,
+							phoneNumber: document.getElementById("transferPhoneNumber").value,
+						}).then(function (res) {
+							window.hold = !window.hold;
+						})
+				}
+				function unattendedTransfer() {
+					_fetch("https://api.sipgate.com/v2/calls/" + window.callid + "/transfer", "POST", {
+							attended: false,
+							phoneNumber: document.getElementById("transferPhoneNumber").value,
+						}).then(function (res) {
+							window.hold = !window.hold;
+						})
+				}
+				function hangupCall() {
+					_fetch("https://api.sipgate.com/v2/calls/" + window.callid, "DELETE")
+				}
+			</script>
+
+			<!-- Webphone -->
+			<div>
+				<h2>Webphone</h2>
+				<div id="webphone"></div>
+				<script src="https://static.sipgate.com/js/webphone/v1/webphone.js"></script>
+				<script>
+					var container = document.getElementById("webphone");
+					var webphone = new SipgateWebphone();
+					webphone.init({
+						container: container,
+						clientId: "sipgate-webphone-example"
+					});
+				</script>
+			</div>
+		</div>
 	</body>
 </html>
