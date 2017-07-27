@@ -1,9 +1,8 @@
 {
   "name": "sipgate-api-playground",
   "version": "1.0.0",
-  "main": "index.js",
   "repository": "git@github.com:fuglu/sipgate-api-playground.git",
-  "author": "Benjamin Kluck <kluck@sipgate.de>",
+  "author": "Benjamin Kluck <ben@fug.lu>",
   "license": "MIT",
   "dependencies": {
     "serve": "^6.0.3"
