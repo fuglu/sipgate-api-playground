@@ -5,9 +5,9 @@
   "author": "Benjamin Kluck <ben@fug.lu>",
   "license": "MIT",
   "dependencies": {
-    "serve": "^6.0.3"
+    "serve": "^10.0.2"
   },
   "scripts": {
-    "start": "serve --cors"
+    "start": "serve"
   }
 }
